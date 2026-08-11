@@ -1,0 +1,1229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>⚠ KHMERCRAFT_PAYMENT_V9.2.exe</title>
+<style>
+/* ════════════════════════════════════════
+   KHMERCRAFT PAYMENT TERMINAL
+   Professional Builder Grade CSS
+   ════════════════════════════════════════ */
+
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+:root {
+    --blood: #ff0000;
+    --blood-dim: #880000;
+    --terminal-bg: #0a0a0a;
+    --terminal-border: #1a0000;
+    --text-main: #ff3333;
+    --text-dim: #884444;
+    --text-bright: #ff6666;
+    --success: #00ff41;
+    --scanline: rgba(255, 0, 0, 0.03);
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #050505;
+    font-family: 'Courier New', Courier, monospace;
+    color: var(--text-main);
+    cursor: crosshair;
+    touch-action: manipulation;
+}
+
+/* ─── Scanline Overlay ─── */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        var(--scanline) 2px,
+        var(--scanline) 4px
+    );
+    pointer-events: none;
+    z-index: 9998;
+    animation: scanlineMove 8s linear infinite;
+}
+
+@keyframes scanlineMove {
+    0% { background-position: 0 0; }
+    100% { background-position: 0 100vh; }
+}
+
+/* ─── CRT Flicker ─── */
+body::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(255, 0, 0, 0.02);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 9997;
+    animation: crtFlicker 4s infinite;
+}
+
+@keyframes crtFlicker {
+    0%, 100% { opacity: 0; }
+    50% { opacity: 0.02; }
+    52% { opacity: 0.08; }
+    54% { opacity: 0.02; }
+    90% { opacity: 0; }
+    92% { opacity: 0.06; }
+    94% { opacity: 0; }
+}
+
+/* ─── Blood Drips ─── */
+.blood-drip {
+    position: fixed;
+    top: -20px;
+    width: 2px;
+    background: linear-gradient(to bottom, #ff0000, #330000);
+    opacity: 0.5;
+    pointer-events: none;
+    z-index: 1;
+    border-radius: 0 0 50% 50%;
+}
+
+/* ─── Matrix Rain Canvas ─── */
+#matrixCanvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    opacity: 0.15;
+    pointer-events: none;
+}
+
+/* ─── Main Terminal Card ─── */
+.terminal-wrapper {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.terminal {
+    background: var(--terminal-bg);
+    border: 1px solid var(--terminal-border);
+    box-shadow: 
+        0 0 40px rgba(255, 0, 0, 0.1),
+        inset 0 0 80px rgba(255, 0, 0, 0.03),
+        0 20px 60px rgba(0, 0, 0, 0.8);
+    border-radius: 8px;
+    width: 100%;
+    max-width: 520px;
+    position: relative;
+    overflow: hidden;
+    animation: terminalBreath 6s ease-in-out infinite;
+}
+
+@keyframes terminalBreath {
+    0%, 100% { box-shadow: 0 0 40px rgba(255,0,0,0.1), inset 0 0 80px rgba(255,0,0,0.03); }
+    50% { box-shadow: 0 0 60px rgba(255,0,0,0.15), inset 0 0 100px rgba(255,0,0,0.05); }
+}
+
+/* ─── Top Bar ─── */
+.top-bar {
+    background: #111;
+    border-bottom: 1px solid #220000;
+    padding: 10px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    letter-spacing: 1px;
+}
+
+.top-bar .dots {
+    display: flex;
+    gap: 6px;
+}
+
+.dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #333;
+}
+
+.dot.red { background: #ff3333; animation: blink 2s infinite; }
+.dot.yellow { background: #ffaa00; }
+.dot.green { background: #00ff41; }
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+/* ─── Content Area ─── */
+.content {
+    padding: 28px 24px;
+}
+
+/* ─── Header ─── */
+.header {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.glitch-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.glitch {
+    font-size: 22px;
+    font-weight: 900;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    position: relative;
+    color: var(--text-main);
+    text-shadow: 2px 2px 0px rgba(255,0,0,0.3);
+}
+
+.glitch::before,
+.glitch::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--terminal-bg);
+}
+
+.glitch::before {
+    left: 2px;
+    text-shadow: -2px 0 #00ff00;
+    clip: rect(24px, 550px, 90px, 0);
+    animation: glitch-anim-1 3s infinite linear alternate-reverse;
+}
+
+.glitch::after {
+    left: -2px;
+    text-shadow: -2px 0 #0000ff;
+    clip: rect(85px, 550px, 140px, 0);
+    animation: glitch-anim-2 2.5s infinite linear alternate-reverse;
+}
+
+@keyframes glitch-anim-1 {
+    0% { clip: rect(20px, 9999px, 15px, 0); }
+    20% { clip: rect(60px, 9999px, 70px, 0); }
+    40% { clip: rect(20px, 9999px, 50px, 0); }
+    60% { clip: rect(80px, 9999px, 90px, 0); }
+    80% { clip: rect(10px, 9999px, 40px, 0); }
+    100% { clip: rect(50px, 9999px, 30px, 0); }
+}
+
+@keyframes glitch-anim-2 {
+    0% { clip: rect(65px, 9999px, 100px, 0); }
+    20% { clip: rect(10px, 9999px, 60px, 0); }
+    40% { clip: rect(90px, 9999px, 120px, 0); }
+    60% { clip: rect(30px, 9999px, 80px, 0); }
+    80% { clip: rect(70px, 9999px, 110px, 0); }
+    100% { clip: rect(15px, 9999px, 55px, 0); }
+}
+
+.sub-header {
+    color: var(--text-dim);
+    font-size: 11px;
+    margin-top: 6px;
+    letter-spacing: 2px;
+}
+
+/* ─── System Log ─── */
+.system-log {
+    background: #080808;
+    border: 1px solid #1a0000;
+    border-radius: 4px;
+    padding: 12px;
+    height: 80px;
+    overflow: hidden;
+    margin-bottom: 20px;
+    font-size: 10px;
+    line-height: 1.6;
+    color: #553333;
+    position: relative;
+}
+
+.system-log::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 30px;
+    background: linear-gradient(to bottom, transparent, #080808);
+}
+
+.log-line {
+    opacity: 0;
+    animation: logFade 0.3s forwards;
+}
+
+@keyframes logFade {
+    to { opacity: 1; }
+}
+
+/* ─── Steve Avatar Box ─── */
+.avatar-box {
+    background: #0d0d0d;
+    border: 1px solid #220000;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+}
+
+.avatar-box::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,0,0,0.05), transparent);
+    animation: scanSlide 3s infinite;
+}
+
+@keyframes scanSlide {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
+
+.steve {
+    font-size: 64px;
+    line-height: 1;
+    display: inline-block;
+    filter: grayscale(0.4) contrast(1.2);
+    transition: transform 0.2s;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.steve:hover { transform: scale(1.1) rotate(3deg); }
+.steve:active { transform: scale(0.95); }
+
+.steve-label {
+    color: var(--blood);
+    font-size: 10px;
+    margin-top: 8px;
+    letter-spacing: 3px;
+    opacity: 0.8;
+}
+
+/* ─── Amount Box ─── */
+.amount-box {
+    background: #0d0d0d;
+    border: 1px solid #330000;
+    border-radius: 8px;
+    padding: 24px;
+    text-align: center;
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.amount-box::after {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: 20%;
+    right: 20%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--blood), transparent);
+    animation: pulseLine 2s infinite;
+}
+
+@keyframes pulseLine {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 1; }
+}
+
+.amount {
+    font-size: 42px;
+    font-weight: 900;
+    color: var(--blood);
+    text-shadow: 0 0 20px rgba(255,0,0,0.4);
+    letter-spacing: 2px;
+    line-height: 1;
+}
+
+.concert-name {
+    color: var(--text-dim);
+    font-size: 13px;
+    margin-top: 8px;
+    letter-spacing: 1px;
+}
+
+.seat-info {
+    color: #553333;
+    font-size: 11px;
+    margin-top: 4px;
+}
+
+/* ─── Progress Bar ─── */
+.progress-container {
+    margin-bottom: 20px;
+    display: none;
+}
+
+.progress-label {
+    font-size: 10px;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+    letter-spacing: 2px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 6px;
+    background: #1a0000;
+    border-radius: 3px;
+    overflow: hidden;
+    position: relative;
+}
+
+.progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--blood-dim), var(--blood));
+    border-radius: 3px;
+    transition: width 0.3s;
+    position: relative;
+}
+
+.progress-fill::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 20px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3));
+    animation: progressShine 1s infinite;
+}
+
+@keyframes progressShine {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(20px); }
+}
+
+/* ─── Buttons ─── */
+.btn {
+    width: 100%;
+    padding: 16px;
+    font-family: 'Courier New', monospace;
+    font-size: 16px;
+    font-weight: 900;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    border: 2px solid var(--blood-dim);
+    background: #0a0000;
+    color: var(--text-main);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s;
+    margin-bottom: 12px;
+    border-radius: 4px;
+    -webkit-appearance: none;
+}
+
+.btn:hover {
+    background: var(--blood);
+    color: #000;
+    border-color: var(--blood);
+    box-shadow: 0 0 30px rgba(255,0,0,0.4);
+    text-shadow: none;
+}
+
+.btn:active {
+    transform: scale(0.98);
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    animation: none;
+}
+
+.btn-glitch {
+    animation: btnGlitch 4s infinite;
+}
+
+@keyframes btnGlitch {
+    0%, 90%, 100% { transform: translate(0); }
+    91% { transform: translate(-2px, 1px); }
+    92% { transform: translate(2px, -1px); }
+    93% { transform: translate(0); }
+}
+
+/* ─── Warning Text ─── */
+.warning {
+    text-align: center;
+    font-size: 10px;
+    color: #ff6600;
+    opacity: 0.6;
+    margin-top: 8px;
+    letter-spacing: 1px;
+}
+
+/* ─── Countdown ─── */
+.countdown {
+    text-align: center;
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-bottom: 16px;
+    letter-spacing: 2px;
+}
+
+.countdown span {
+    color: var(--blood);
+    font-weight: bold;
+}
+
+/* ─── Success Screen ─── */
+#successScreen {
+    display: none;
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.success-icon {
+    font-size: 80px;
+    margin-bottom: 20px;
+    display: inline-block;
+    animation: successPop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes successPop {
+    0% { transform: scale(0) rotate(-180deg); opacity: 0; }
+    100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+.success-title {
+    font-size: 24px;
+    color: var(--success);
+    font-weight: 900;
+    letter-spacing: 4px;
+    margin-bottom: 12px;
+    text-shadow: 0 0 20px rgba(0,255,65,0.3);
+}
+
+.success-text {
+    color: #888;
+    font-size: 13px;
+    line-height: 1.6;
+    margin-bottom: 8px;
+}
+
+.hash {
+    font-size: 10px;
+    color: #333;
+    margin-top: 16px;
+    word-break: break-all;
+    font-family: monospace;
+}
+
+/* ─── Jumpscare Overlay ─── */
+#jumpscare {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: #ff0000;
+    z-index: 10000;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    animation: flashRed 0.1s infinite;
+}
+
+@keyframes flashRed {
+    0%, 100% { background: #ff0000; }
+    50% { background: #ffffff; }
+}
+
+.jumpscare-text {
+    font-size: 15vw;
+    color: #000;
+    font-weight: 900;
+    text-transform: uppercase;
+    animation: shake 0.08s infinite;
+    text-align: center;
+    line-height: 1;
+}
+
+.jumpscare-skull {
+    font-size: 25vw;
+    animation: shake 0.08s infinite reverse;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translate(-8px, -8px); }
+    25% { transform: translate(8px, 8px); }
+    50% { transform: translate(-8px, 8px); }
+    75% { transform: translate(8px, -8px); }
+}
+
+/* ─── Easter Egg: Rainbow Mode ─── */
+body.rainbow {
+    animation: rainbowBg 2s linear infinite;
+}
+
+body.rainbow .terminal {
+    border-color: #fff;
+    box-shadow: 0 0 60px rgba(255,255,255,0.3);
+}
+
+@keyframes rainbowBg {
+    0% { background: #ff0000; }
+    16% { background: #ff8800; }
+    33% { background: #ffff00; }
+    50% { background: #00ff00; }
+    66% { background: #0000ff; }
+    83% { background: #8800ff; }
+    100% { background: #ff0000; }
+}
+
+/* ─── Confetti ─── */
+.confetti {
+    position: fixed;
+    width: 8px;
+    height: 8px;
+    top: -10px;
+    z-index: 9999;
+    pointer-events: none;
+}
+
+@keyframes confettiFall {
+    to {
+        transform: translateY(100vh) rotate(720deg);
+        opacity: 0;
+    }
+}
+
+/* ─── Mobile Responsive ─── */
+@media (max-width: 600px) {
+    .terminal-wrapper {
+        padding: 10px;
+        align-items: flex-start;
+        padding-top: 20px;
+    }
+    
+    .terminal {
+        max-width: 100%;
+        border-radius: 0;
+        border-left: none;
+        border-right: none;
+    }
+    
+    .content {
+        padding: 20px 16px;
+    }
+    
+    .glitch {
+        font-size: 16px;
+        letter-spacing: 2px;
+    }
+    
+    .amount {
+        font-size: 32px;
+    }
+    
+    .steve {
+        font-size: 48px;
+    }
+    
+    .btn {
+        font-size: 14px;
+        padding: 14px;
+    }
+    
+    .jumpscare-text {
+        font-size: 20vw;
+    }
+    
+    .jumpscare-skull {
+        font-size: 30vw;
+    }
+    
+    .system-log {
+        height: 60px;
+        font-size: 9px;
+    }
+}
+
+@media (max-width: 380px) {
+    .glitch {
+        font-size: 14px;
+    }
+    
+    .amount {
+        font-size: 28px;
+    }
+    
+    .content {
+        padding: 16px 12px;
+    }
+}
+
+/* ─── Loading Spinner ─── */
+.spinner {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid var(--blood-dim);
+    border-top-color: var(--blood);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-left: 8px;
+    vertical-align: middle;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ─── Ticker ─── */
+.ticker {
+    overflow: hidden;
+    white-space: nowrap;
+    margin-bottom: 16px;
+    opacity: 0.4;
+}
+
+.ticker-inner {
+    display: inline-block;
+    animation: ticker 20s linear infinite;
+    font-size: 10px;
+    color: #553333;
+}
+
+@keyframes ticker {
+    0% { transform: translateX(100%); }
+    100% { transform: translateX(-100%); }
+}
+
+/* ─── Hide scrollbar ─── */
+::-webkit-scrollbar {
+    width: 0px;
+    background: transparent;
+}
+</style>
+<base target="_blank">
+</head>
+<body>
+
+<!-- Matrix Rain Background -->
+<canvas id="matrixCanvas"></canvas>
+
+<!-- Blood Drips -->
+<div class="blood-drip" style="left: 5%; height: 80px; animation: drip 5s infinite 0s;"></div>
+<div class="blood-drip" style="left: 15%; height: 120px; animation: drip 7s infinite 1s;"></div>
+<div class="blood-drip" style="left: 25%; height: 60px; animation: drip 4s infinite 2s;"></div>
+<div class="blood-drip" style="left: 35%; height: 100px; animation: drip 6s infinite 0.5s;"></div>
+<div class="blood-drip" style="left: 45%; height: 90px; animation: drip 5.5s infinite 1.5s;"></div>
+<div class="blood-drip" style="left: 55%; height: 110px; animation: drip 6.5s infinite 2.5s;"></div>
+<div class="blood-drip" style="left: 65%; height: 70px; animation: drip 4.5s infinite 3s;"></div>
+<div class="blood-drip" style="left: 75%; height: 130px; animation: drip 7.5s infinite 0.8s;"></div>
+<div class="blood-drip" style="left: 85%; height: 85px; animation: drip 5s infinite 1.8s;"></div>
+<div class="blood-drip" style="left: 95%; height: 95px; animation: drip 6s infinite 2.2s;"></div>
+
+<!-- Jumpscare Overlay -->
+<div id="jumpscare">
+    <div class="jumpscare-text">PAY<br>NOW</div>
+    <div class="jumpscare-skull">💀</div>
+</div>
+
+<!-- Main Terminal -->
+<div class="terminal-wrapper">
+    <div class="terminal" id="terminal">
+        
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div class="dots">
+                <div class="dot red"></div>
+                <div class="dot yellow"></div>
+                <div class="dot green"></div>
+            </div>
+            <div style="color:#333; font-size:10px;">KHMERCRAFT_PAYMENT_V9.2.exe</div>
+            <div style="color:#333; font-size:10px;" id="clock">00:00:00</div>
+        </div>
+        
+        <!-- Content -->
+        <div class="content" id="mainContent">
+            
+            <!-- Header -->
+            <div class="header">
+                <div class="glitch-wrapper">
+                    <h1 class="glitch" data-text="COMPLETE_TRANSACTION">COMPLETE_TRANSACTION</h1>
+                </div>
+                <div class="sub-header">[ AUTHORIZED_BUILDER_ACCESS // ENCRYPTED ]</div>
+            </div>
+            
+            <!-- Ticker -->
+            <div class="ticker">
+                <div class="ticker-inner">
+                    ⚠ WARNING: This is a secure payment terminal. Do not refresh. Do not go back. Steve is watching. ⚠ 
+                    Your transaction is being monitored by 3 security protocols. ⚠ 
+                    Unauthorized access will result in immediate block placement on your head. ⚠
+                </div>
+            </div>
+            
+            <!-- System Log -->
+            <div class="system-log" id="systemLog"></div>
+            
+            <!-- Avatar -->
+            <div class="avatar-box">
+                <div class="steve" id="steveAvatar" title="Don't click me too much...">🧟</div>
+                <div class="steve-label">CORRUPTED_STEVE.EXE</div>
+            </div>
+            
+            <!-- Countdown -->
+            <div class="countdown">
+                OFFER EXPIRES IN: <span id="countdown">02:59</span>
+            </div>
+            
+            <!-- Amount -->
+            <div class="amount-box">
+                <div class="amount" id="priceDisplay">$25.00</div>
+                <div class="concert-name" id="concertDisplay">Baby MAMA — VannDa</div>
+                <div class="seat-info" id="seatDisplay"></div>
+            </div>
+            
+            <!-- Progress -->
+            <div class="progress-container" id="progressContainer">
+                <div class="progress-label">
+                    <span>ENCRYPTING_TRANSACTION</span>
+                    <span id="progressPercent">0%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+            
+            <!-- Pay Button -->
+            <button class="btn btn-glitch" id="payBtn" onclick="startPayment()">
+                [ EXECUTE_PAYMENT ]
+            </button>
+            
+            <div class="warning">
+                ⚠ WARNING: This action cannot be undone. Your soul will be charged 2.5% processing fee.
+            </div>
+            
+        </div>
+        
+        <!-- Success Screen -->
+        <div id="successScreen">
+            <div class="success-icon">💀</div>
+            <div class="success-title">TRANSACTION_COMPLETE</div>
+            <div class="success-text">Steve has successfully harvested your payment.</div>
+            <div class="success-text" style="color:var(--success); margin-top:8px;">You may now close this terminal.</div>
+            <div class="hash" id="txHash"></div>
+        </div>
+        
+    </div>
+</div>
+
+<script>
+/* ════════════════════════════════════════
+   KHMERCRAFT AUDIO & LOGIC ENGINE
+   ════════════════════════════════════════ */
+
+const AudioContext = window.AudioContext || window.webkitAudioContext;
+let audioCtx = null;
+let masterGain = null;
+
+function initAudio() {
+    if (audioCtx) return;
+    audioCtx = new AudioContext();
+    masterGain = audioCtx.createGain();
+    masterGain.gain.value = 0.4;
+    masterGain.connect(audioCtx.destination);
+}
+
+function playTone(freq, type, duration, vol = 0.3, when = 0) {
+    if (!audioCtx) initAudio();
+    const t = audioCtx.currentTime + when;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, t);
+    gain.gain.setValueAtTime(vol, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + duration);
+    osc.connect(gain);
+    gain.connect(masterGain);
+    osc.start(t);
+    osc.stop(t + duration);
+}
+
+function playNoise(duration, vol = 0.3) {
+    if (!audioCtx) initAudio();
+    const bufferSize = audioCtx.sampleRate * duration;
+    const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+        data[i] = Math.random() * 2 - 1;
+    }
+    const noise = audioCtx.createBufferSource();
+    noise.buffer = buffer;
+    const gain = audioCtx.createGain();
+    gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+    
+    // Filter for scary low sound
+    const filter = audioCtx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.value = 800;
+    
+    noise.connect(filter);
+    filter.connect(gain);
+    gain.connect(masterGain);
+    noise.start();
+    noise.stop(audioCtx.currentTime + duration);
+}
+
+function playJumpscareSound() {
+    if (!audioCtx) initAudio();
+    const now = audioCtx.currentTime;
+    
+    // Dissonant cluster
+    playTone(100, 'sawtooth', 0.5, 0.8, 0);
+    playTone(150, 'square', 0.5, 0.6, 0);
+    playTone(80, 'sawtooth', 0.7, 0.9, 0);
+    playTone(200, 'sawtooth', 0.4, 0.5, 0.1);
+    
+    // Noise burst
+    playNoise(0.6, 0.7);
+    
+    // Feedback screech
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(900, now);
+    osc.frequency.exponentialRampToValueAtTime(50, now + 0.6);
+    gain.gain.setValueAtTime(0.6, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+    osc.connect(gain);
+    gain.connect(masterGain);
+    osc.start(now);
+    osc.stop(now + 0.6);
+}
+
+function playSuccessSound() {
+    if (!audioCtx) initAudio();
+    const now = audioCtx.currentTime;
+    [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
+        playTone(freq, 'sine', 0.3, 0.15, i * 0.12);
+    });
+}
+
+function playHoverSound() {
+    playTone(800, 'sine', 0.05, 0.03);
+}
+
+function playClickSound() {
+    playTone(1200, 'square', 0.08, 0.05);
+}
+
+function playBabyShark() {
+    if (!audioCtx) initAudio();
+    const notes = [
+        [293.66, 0.25], [293.66, 0.25], [329.63, 0.25], [329.63, 0.25],
+        [349.23, 0.25], [349.23, 0.25], [329.63, 0.5],
+        [293.66, 0.25], [293.66, 0.25], [329.63, 0.25], [329.63, 0.25],
+        [349.23, 0.25], [349.23, 0.25], [329.63, 0.5],
+        [293.66, 0.25], [329.63, 0.25], [349.23, 0.25], [392.00, 0.25],
+        [349.23, 0.25], [329.63, 0.25], [293.66, 0.25], [261.63, 0.25],
+        [293.66, 0.5]
+    ];
+    notes.forEach(([freq, dur], i) => {
+        playTone(freq, 'triangle', dur, 0.12, i * 0.28);
+    });
+}
+
+/* ─── Matrix Rain ─── */
+const canvas = document.getElementById('matrixCanvas');
+const ctx = canvas.getContext('2d');
+
+function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+const chars = '01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
+const fontSize = 14;
+let columns = Math.floor(canvas.width / fontSize);
+let drops = new Array(columns).fill(1);
+
+function drawMatrix() {
+    ctx.fillStyle = 'rgba(5, 5, 5, 0.05)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#1a0000';
+    ctx.font = fontSize + 'px monospace';
+    
+    for (let i = 0; i < drops.length; i++) {
+        const text = chars[Math.floor(Math.random() * chars.length)];
+        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+            drops[i] = 0;
+        }
+        drops[i]++;
+    }
+}
+setInterval(drawMatrix, 50);
+
+window.addEventListener('resize', () => {
+    resizeCanvas();
+    columns = Math.floor(canvas.width / fontSize);
+    drops = new Array(columns).fill(1);
+});
+
+/* ─── System Log ─── */
+const logMessages = [
+    '>> Initializing secure socket...',
+    '>> Handshake: TLS 1.3 verified',
+    '>> Routing through node: PHNOM_PENH_01',
+    '>> Encrypting payload with AES-256...',
+    '>> Steve authentication: PENDING',
+    '>> Checking soul balance...',
+    '>> WARNING: Soul balance low',
+    '>> Establishing blockchain ledger...',
+    '>> Mining transaction block...',
+    '>> 3 confirmations received',
+    '>> Payment gateway: ONLINE',
+    '>> Ready for execution.'
+];
+
+function addLog(text) {
+    const log = document.getElementById('systemLog');
+    const line = document.createElement('div');
+    line.className = 'log-line';
+    line.textContent = text;
+    log.appendChild(line);
+    if (log.children.length > 4) log.removeChild(log.children[0]);
+}
+
+let logIndex = 0;
+function startLogs() {
+    const interval = setInterval(() => {
+        if (logIndex < logMessages.length) {
+            addLog(logMessages[logIndex]);
+            logIndex++;
+        } else {
+            clearInterval(interval);
+        }
+    }, 400);
+}
+
+/* ─── Clock ─── */
+function updateClock() {
+    const now = new Date();
+    const time = now.toTimeString().split(' ')[0];
+    document.getElementById('clock').textContent = time;
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+/* ─── Countdown ─── */
+let countdownSec = 179;
+function updateCountdown() {
+    const m = Math.floor(countdownSec / 60).toString().padStart(2, '0');
+    const s = (countdownSec % 60).toString().padStart(2, '0');
+    document.getElementById('countdown').textContent = `${m}:${s}`;
+    if (countdownSec > 0) countdownSec--;
+}
+setInterval(updateCountdown, 1000);
+
+/* ─── URL Params ─── */
+const params = new URLSearchParams(location.search);
+const amount = params.get('amount') || '25.00';
+const concert = params.get('concert') || 'Concert Ticket';
+const seats = params.get('seats') || '';
+
+document.getElementById('priceDisplay').textContent = '$' + amount;
+document.getElementById('concertDisplay').textContent = concert;
+if (seats) {
+    document.getElementById('seatDisplay').textContent = 'Seats: ' + seats;
+}
+
+/* ─── Confetti ─── */
+function spawnConfetti() {
+    const colors = ['#ff0000', '#ff6600', '#ffff00', '#00ff41', '#00ffff', '#ff00ff'];
+    for (let i = 0; i < 60; i++) {
+        const c = document.createElement('div');
+        c.className = 'confetti';
+        c.style.left = Math.random() * 100 + 'vw';
+        c.style.background = colors[Math.floor(Math.random() * colors.length)];
+        c.style.width = (Math.random() * 8 + 4) + 'px';
+        c.style.height = (Math.random() * 8 + 4) + 'px';
+        c.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+        c.style.animation = `confettiFall ${Math.random() * 2 + 2}s linear forwards`;
+        document.body.appendChild(c);
+        setTimeout(() => c.remove(), 4000);
+    }
+}
+
+/* ─── Payment Flow ─── */
+let paying = false;
+
+function startPayment() {
+    if (paying) return;
+    paying = true;
+    
+    const btn = document.getElementById('payBtn');
+    btn.disabled = true;
+    btn.innerHTML = 'ENCRYPTING <span class="spinner"></span>';
+    
+    const progressContainer = document.getElementById('progressContainer');
+    const progressFill = document.getElementById('progressFill');
+    const progressPercent = document.getElementById('progressPercent');
+    progressContainer.style.display = 'block';
+    
+    // Play encrypting sounds
+    for (let i = 0; i < 5; i++) {
+        setTimeout(() => playTone(400 + i * 100, 'square', 0.1, 0.05), i * 200);
+    }
+    
+    let progress = 0;
+    const interval = setInterval(() => {
+        progress += Math.random() * 15 + 5;
+        if (progress > 100) progress = 100;
+        progressFill.style.width = progress + '%';
+        progressPercent.textContent = Math.floor(progress) + '%';
+        
+        if (Math.random() > 0.7) {
+            addLog('>> Processing... ' + Math.floor(progress) + '%');
+        }
+        
+        if (progress >= 100) {
+            clearInterval(interval);
+            setTimeout(doJumpscare, 300);
+        }
+    }, 200);
+}
+
+function doJumpscare() {
+    const js = document.getElementById('jumpscare');
+    js.style.display = 'flex';
+    playJumpscareSound();
+    
+    // Vibrate on mobile
+    if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 400]);
+    
+    setTimeout(() => {
+        js.style.display = 'none';
+        showSuccess();
+    }, 1400);
+}
+
+function showSuccess() {
+    document.getElementById('mainContent').style.display = 'none';
+    document.getElementById('successScreen').style.display = 'block';
+    
+    playSuccessSound();
+    spawnConfetti();
+    
+    // Generate fake hash
+    const hash = '0x' + Array(64).fill(0).map(() => 
+        '0123456789abcdef'[Math.floor(Math.random() * 16)]
+    ).join('');
+    document.getElementById('txHash').textContent = 'TX: ' + hash;
+    
+    document.title = '✓ PAYMENT_HARVESTED';
+}
+
+/* ─── Hover Sounds ─── */
+document.getElementById('payBtn').addEventListener('mouseenter', playHoverSound);
+document.getElementById('payBtn').addEventListener('mousedown', playClickSound);
+
+/* ─── Steve Easter Egg ─── */
+let steveClicks = 0;
+document.getElementById('steveAvatar').addEventListener('click', () => {
+    steveClicks++;
+    playTone(600 + steveClicks * 50, 'sine', 0.1, 0.05);
+    
+    if (steveClicks >= 5) {
+        steveClicks = 0;
+        playBabyShark();
+        addLog('>> EASTER_EGG: Baby Shark protocol activated');
+        document.getElementById('steveAvatar').textContent = '🦈';
+        setTimeout(() => {
+            document.getElementById('steveAvatar').textContent = '🧟';
+        }, 3000);
+    }
+});
+
+/* ─── Konami Code ─── */
+let konami = [];
+const konamiCode = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
+document.addEventListener('keydown', (e) => {
+    konami.push(e.key);
+    konami = konami.slice(-10);
+    if (konami.join(',') === konamiCode.join(',')) {
+        document.body.classList.toggle('rainbow');
+        playTone(880, 'sine', 0.5, 0.2);
+        addLog('>> RAINBOW_MODE: Activated by Konami Code');
+    }
+});
+
+/* ─── Touch feedback for mobile ─── */
+document.addEventListener('touchstart', () => {}, {passive: true});
+
+/* ─── Init ─── */
+window.addEventListener('load', () => {
+    startLogs();
+    
+    // Random glitch on title every few seconds
+    setInterval(() => {
+        const glitch = document.querySelector('.glitch');
+        glitch.style.textShadow = `${Math.random()*4-2}px ${Math.random()*4-2}px 0px rgba(255,0,0,0.5)`;
+        setTimeout(() => {
+            glitch.style.textShadow = '2px 2px 0px rgba(255,0,0,0.3)';
+        }, 100);
+    }, 5000);
+});
+
+/* ─── Prevent back button ─── */
+history.pushState(null, null, location.href);
+window.addEventListener('popstate', () => {
+    history.pushState(null, null, location.href);
+    addLog('>> WARNING: Back navigation blocked by Steve');
+    playTone(200, 'sawtooth', 0.3, 0.1);
+});
+</script>
+</body>
+</html>
