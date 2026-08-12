@@ -1151,28 +1151,34 @@ function doJumpscare() {
 }
 
 function showSuccess() {
-    document.getElementById('mainContent').style.display = 'none';
-    document.getElementById('successScreen').style.display = 'block';
-    
+    // At the top of your script, add:
+let paidTopic = null;
+
+// In your pay() function, right after you read URL params, add:
+paidTopic = p.get('topic');
+
+// Replace your showSuccess() with this:
+function showSuccess() {
+    document.getElementById('pay-screen').style.display = 'none';
+    document.getElementById('success').style.display = 'block';
     playSuccessSound();
     spawnConfetti();
-    
-    // Generate fake hash
-    const hash = '0x' + Array(64).fill(0).map(() => 
-        '0123456789abcdef'[Math.floor(Math.random() * 16)]
-    ).join('');
-    document.getElementById('txHash').textContent = 'TX: ' + hash;
-    
     document.title = '✓ PAYMENT_HARVESTED';
-        // Notify desktop app that payment is done
-    const topic = p.get('topic');
-    if (topic) {
-        fetch('https://ntfy.sh/' + topic, {
+    
+    // Notify desktop app
+    if (paidTopic) {
+        console.log('Sending signal to topic:', paidTopic);
+        fetch('https://ntfy.sh/' + paidTopic, {
             method: 'POST',
             body: 'PAID',
-            mode: 'no-cors'
-        });
-        console.log('Signal sent to app:', topic);
+            headers: { 'Title': 'KHMERCRAFT Payment' }
+        })
+        .then(r => console.log('Signal sent:', r.status))
+        .catch(e => console.log('Signal failed (normal for CORS):', e));
+        
+        // Also try backup method (image ping - bypasses CORS)
+        const img = new Image();
+        img.src = 'https://ntfy.sh/' + paidTopic + '?message=PAID';
     }
 }
 
