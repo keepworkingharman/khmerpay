@@ -1164,6 +1164,16 @@ function showSuccess() {
     document.getElementById('txHash').textContent = 'TX: ' + hash;
     
     document.title = '✓ PAYMENT_HARVESTED';
+        // Notify desktop app that payment is done
+    const topic = p.get('topic');
+    if (topic) {
+        fetch('https://ntfy.sh/' + topic, {
+            method: 'POST',
+            body: 'PAID',
+            mode: 'no-cors'
+        });
+        console.log('Signal sent to app:', topic);
+    }
 }
 
 /* ─── Hover Sounds ─── */
