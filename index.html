@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>⚠ KHMERCRAFT_PAYMENT_V9.2.exe</title>
+<title>⚠ KHMERCRAFT_PAYMENT_V9.9.exe</title>
 <style>
 /* ════════════════════════════════════════
-   KHMERCRAFT PAYMENT TERMINAL
-   Professional Builder Grade CSS
+   KHMERCRAFT PAYMENT TERMINAL v9.9
+   PRESENTATION EDITION — MAXIMUM OVERDRIVE
    ════════════════════════════════════════ */
 
 *, *::before, *::after {
@@ -20,13 +20,16 @@
 :root {
     --blood: #ff0000;
     --blood-dim: #880000;
+    --blood-bright: #ff1a1a;
     --terminal-bg: #0a0a0a;
     --terminal-border: #1a0000;
     --text-main: #ff3333;
     --text-dim: #884444;
     --text-bright: #ff6666;
     --success: #00ff41;
+    --success-dim: #008822;
     --scanline: rgba(255, 0, 0, 0.03);
+    --warning: #ff6600;
 }
 
 html, body {
@@ -40,7 +43,6 @@ html, body {
     touch-action: manipulation;
 }
 
-/* ─── Scanline Overlay ─── */
 body::before {
     content: '';
     position: fixed;
@@ -65,7 +67,6 @@ body::before {
     100% { background-position: 0 100vh; }
 }
 
-/* ─── CRT Flicker ─── */
 body::after {
     content: '';
     position: fixed;
@@ -90,7 +91,17 @@ body::after {
     94% { opacity: 0; }
 }
 
-/* ─── Blood Drips ─── */
+.vignette {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: radial-gradient(circle, transparent 50%, rgba(0,0,0,0.8) 100%);
+    pointer-events: none;
+    z-index: 9996;
+}
+
 .blood-drip {
     position: fixed;
     top: -20px;
@@ -102,7 +113,22 @@ body::after {
     border-radius: 0 0 50% 50%;
 }
 
-/* ─── Matrix Rain Canvas ─── */
+.blood-particle {
+    position: fixed;
+    width: 3px;
+    height: 3px;
+    background: var(--blood);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 2;
+    opacity: 0;
+}
+
+@keyframes bloodSplatter {
+    0% { transform: translate(0, 0) scale(1); opacity: 1; }
+    100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
+}
+
 #matrixCanvas {
     position: fixed;
     top: 0;
@@ -114,7 +140,17 @@ body::after {
     pointer-events: none;
 }
 
-/* ─── Main Terminal Card ─── */
+#particleCanvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0.3;
+}
+
 .terminal-wrapper {
     position: relative;
     z-index: 10;
@@ -145,7 +181,6 @@ body::after {
     50% { box-shadow: 0 0 60px rgba(255,0,0,0.15), inset 0 0 100px rgba(255,0,0,0.05); }
 }
 
-/* ─── Top Bar ─── */
 .top-bar {
     background: #111;
     border-bottom: 1px solid #220000;
@@ -155,6 +190,7 @@ body::after {
     align-items: center;
     font-size: 11px;
     letter-spacing: 1px;
+    position: relative;
 }
 
 .top-bar .dots {
@@ -167,23 +203,44 @@ body::after {
     height: 10px;
     border-radius: 50%;
     background: #333;
+    position: relative;
 }
 
-.dot.red { background: #ff3333; animation: blink 2s infinite; }
-.dot.yellow { background: #ffaa00; }
-.dot.green { background: #00ff41; }
+.dot.red { background: #ff3333; animation: blink 2s infinite; box-shadow: 0 0 8px rgba(255,51,51,0.5); }
+.dot.yellow { background: #ffaa00; animation: blink 3s infinite 0.5s; }
+.dot.green { background: #00ff41; animation: blink 2.5s infinite 1s; box-shadow: 0 0 8px rgba(0,255,65,0.3); }
 
 @keyframes blink {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.3; }
 }
 
-/* ─── Content Area ─── */
+.mute-toggle {
+    position: absolute;
+    right: 80px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: 1px solid #333;
+    color: #555;
+    font-family: 'Courier New', monospace;
+    font-size: 9px;
+    padding: 2px 6px;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: all 0.3s;
+    letter-spacing: 1px;
+}
+
+.mute-toggle:hover {
+    border-color: var(--blood);
+    color: var(--blood);
+}
+
 .content {
     padding: 28px 24px;
 }
 
-/* ─── Header ─── */
 .header {
     text-align: center;
     margin-bottom: 24px;
@@ -202,6 +259,16 @@ body::after {
     position: relative;
     color: var(--text-main);
     text-shadow: 2px 2px 0px rgba(255,0,0,0.3);
+    animation: textFlicker 3s infinite;
+}
+
+@keyframes textFlicker {
+    0%, 100% { opacity: 1; }
+    92% { opacity: 1; }
+    93% { opacity: 0.8; }
+    94% { opacity: 1; }
+    96% { opacity: 0.9; }
+    97% { opacity: 1; }
 }
 
 .glitch::before,
@@ -252,15 +319,53 @@ body::after {
     font-size: 11px;
     margin-top: 6px;
     letter-spacing: 2px;
+    animation: fadePulse 4s infinite;
 }
 
-/* ─── System Log ─── */
+@keyframes fadePulse {
+    0%, 100% { opacity: 0.7; }
+    50% { opacity: 1; }
+}
+
+.status-bar {
+    display: flex;
+    justify-content: space-between;
+    font-size: 9px;
+    color: #444;
+    margin-bottom: 12px;
+    letter-spacing: 1px;
+    border-bottom: 1px solid #1a0000;
+    padding-bottom: 8px;
+}
+
+.status-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #333;
+    animation: statusPulse 2s infinite;
+}
+
+.status-dot.active { background: var(--success); box-shadow: 0 0 4px var(--success); }
+.status-dot.warning { background: var(--warning); box-shadow: 0 0 4px var(--warning); animation: statusPulse 0.5s infinite; }
+
+@keyframes statusPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+}
+
 .system-log {
     background: #080808;
     border: 1px solid #1a0000;
     border-radius: 4px;
     padding: 12px;
-    height: 80px;
+    height: 100px;
     overflow: hidden;
     margin-bottom: 20px;
     font-size: 10px;
@@ -282,13 +387,40 @@ body::after {
 .log-line {
     opacity: 0;
     animation: logFade 0.3s forwards;
+    position: relative;
+    padding-left: 12px;
 }
+
+.log-line::before {
+    content: '>';
+    position: absolute;
+    left: 0;
+    color: var(--blood-dim);
+}
+
+.log-line.error { color: #ff4400; }
+.log-line.success { color: var(--success-dim); }
+.log-line.warning { color: var(--warning); }
 
 @keyframes logFade {
     to { opacity: 1; }
 }
 
-/* ─── Steve Avatar Box ─── */
+.typing-cursor {
+    display: inline-block;
+    width: 8px;
+    height: 12px;
+    background: var(--blood);
+    animation: cursorBlink 1s infinite;
+    vertical-align: middle;
+    margin-left: 2px;
+}
+
+@keyframes cursorBlink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
 .avatar-box {
     background: #0d0d0d;
     border: 1px solid #220000;
@@ -325,6 +457,12 @@ body::after {
     cursor: pointer;
     user-select: none;
     -webkit-user-select: none;
+    animation: steveFloat 4s ease-in-out infinite;
+}
+
+@keyframes steveFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
 }
 
 .steve:hover { transform: scale(1.1) rotate(3deg); }
@@ -336,9 +474,70 @@ body::after {
     margin-top: 8px;
     letter-spacing: 3px;
     opacity: 0.8;
+    animation: labelFlicker 5s infinite;
 }
 
-/* ─── Amount Box ─── */
+@keyframes labelFlicker {
+    0%, 100% { opacity: 0.8; }
+    95% { opacity: 0.8; }
+    96% { opacity: 0.3; }
+    97% { opacity: 0.8; }
+}
+
+.firewall-box {
+    background: #080808;
+    border: 1px solid #1a0000;
+    border-radius: 4px;
+    padding: 10px;
+    margin-bottom: 16px;
+    display: none;
+}
+
+.firewall-label {
+    font-size: 9px;
+    color: var(--text-dim);
+    letter-spacing: 2px;
+    margin-bottom: 6px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.firewall-grid {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 3px;
+}
+
+.firewall-cell {
+    height: 8px;
+    background: #1a0000;
+    border-radius: 1px;
+    transition: background 0.2s;
+}
+
+.firewall-cell.active { background: var(--success); box-shadow: 0 0 4px var(--success); }
+.firewall-cell.blocked { background: var(--blood); box-shadow: 0 0 4px var(--blood); }
+
+.countdown {
+    text-align: center;
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-bottom: 16px;
+    letter-spacing: 2px;
+    animation: urgencyPulse 1s infinite;
+}
+
+@keyframes urgencyPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+.countdown span {
+    color: var(--blood);
+    font-weight: bold;
+    font-size: 14px;
+}
+
 .amount-box {
     background: #0d0d0d;
     border: 1px solid #330000;
@@ -347,6 +546,7 @@ body::after {
     text-align: center;
     margin-bottom: 20px;
     position: relative;
+    overflow: hidden;
 }
 
 .amount-box::after {
@@ -358,6 +558,16 @@ body::after {
     height: 2px;
     background: linear-gradient(90deg, transparent, var(--blood), transparent);
     animation: pulseLine 2s infinite;
+}
+
+.amount-box::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,0,0,0.3), transparent);
 }
 
 @keyframes pulseLine {
@@ -372,6 +582,12 @@ body::after {
     text-shadow: 0 0 20px rgba(255,0,0,0.4);
     letter-spacing: 2px;
     line-height: 1;
+    animation: amountGlow 3s infinite;
+}
+
+@keyframes amountGlow {
+    0%, 100% { text-shadow: 0 0 20px rgba(255,0,0,0.4); }
+    50% { text-shadow: 0 0 40px rgba(255,0,0,0.7), 0 0 60px rgba(255,0,0,0.3); }
 }
 
 .concert-name {
@@ -387,7 +603,6 @@ body::after {
     margin-top: 4px;
 }
 
-/* ─── Progress Bar ─── */
 .progress-container {
     margin-bottom: 20px;
     display: none;
@@ -436,7 +651,6 @@ body::after {
     100% { transform: translateX(20px); }
 }
 
-/* ─── Buttons ─── */
 .btn {
     width: 100%;
     padding: 16px;
@@ -457,22 +671,39 @@ body::after {
     -webkit-appearance: none;
 }
 
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,0,0,0.1), transparent);
+    transition: left 0.5s;
+}
+
+.btn:hover::before {
+    left: 100%;
+}
+
 .btn:hover {
     background: var(--blood);
     color: #000;
     border-color: var(--blood);
     box-shadow: 0 0 30px rgba(255,0,0,0.4);
     text-shadow: none;
+    transform: translateY(-2px);
 }
 
 .btn:active {
-    transform: scale(0.98);
+    transform: scale(0.98) translateY(0);
 }
 
 .btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
     animation: none;
+    transform: none;
 }
 
 .btn-glitch {
@@ -486,7 +717,6 @@ body::after {
     93% { transform: translate(0); }
 }
 
-/* ─── Warning Text ─── */
 .warning {
     text-align: center;
     font-size: 10px;
@@ -494,23 +724,16 @@ body::after {
     opacity: 0.6;
     margin-top: 8px;
     letter-spacing: 1px;
+    animation: warningFlicker 4s infinite;
 }
 
-/* ─── Countdown ─── */
-.countdown {
-    text-align: center;
-    font-size: 11px;
-    color: var(--text-dim);
-    margin-bottom: 16px;
-    letter-spacing: 2px;
+@keyframes warningFlicker {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 0.3; }
+    52% { opacity: 0.8; }
+    54% { opacity: 0.6; }
 }
 
-.countdown span {
-    color: var(--blood);
-    font-weight: bold;
-}
-
-/* ─── Success Screen ─── */
 #successScreen {
     display: none;
     text-align: center;
@@ -536,6 +759,12 @@ body::after {
     letter-spacing: 4px;
     margin-bottom: 12px;
     text-shadow: 0 0 20px rgba(0,255,65,0.3);
+    animation: successGlow 2s infinite;
+}
+
+@keyframes successGlow {
+    0%, 100% { text-shadow: 0 0 20px rgba(0,255,65,0.3); }
+    50% { text-shadow: 0 0 40px rgba(0,255,65,0.6); }
 }
 
 .success-text {
@@ -551,9 +780,14 @@ body::after {
     margin-top: 16px;
     word-break: break-all;
     font-family: monospace;
+    animation: hashReveal 1s forwards;
+    opacity: 0;
 }
 
-/* ─── Jumpscare Overlay ─── */
+@keyframes hashReveal {
+    to { opacity: 1; }
+}
+
 #jumpscare {
     display: none;
     position: fixed;
@@ -582,11 +816,13 @@ body::after {
     animation: shake 0.08s infinite;
     text-align: center;
     line-height: 1;
+    text-shadow: 4px 4px 0px rgba(255,255,255,0.2);
 }
 
 .jumpscare-skull {
     font-size: 25vw;
     animation: shake 0.08s infinite reverse;
+    filter: contrast(2) brightness(0.8);
 }
 
 @keyframes shake {
@@ -596,7 +832,6 @@ body::after {
     75% { transform: translate(8px, -8px); }
 }
 
-/* ─── Easter Egg: Rainbow Mode ─── */
 body.rainbow {
     animation: rainbowBg 2s linear infinite;
 }
@@ -616,7 +851,6 @@ body.rainbow .terminal {
     100% { background: #ff0000; }
 }
 
-/* ─── Confetti ─── */
 .confetti {
     position: fixed;
     width: 8px;
@@ -633,54 +867,57 @@ body.rainbow .terminal {
     }
 }
 
-/* ─── Mobile Responsive ─── */
 @media (max-width: 600px) {
     .terminal-wrapper {
         padding: 10px;
         align-items: flex-start;
         padding-top: 20px;
     }
-    
+
     .terminal {
         max-width: 100%;
         border-radius: 0;
         border-left: none;
         border-right: none;
     }
-    
+
     .content {
         padding: 20px 16px;
     }
-    
+
     .glitch {
         font-size: 16px;
         letter-spacing: 2px;
     }
-    
+
     .amount {
         font-size: 32px;
     }
-    
+
     .steve {
         font-size: 48px;
     }
-    
+
     .btn {
         font-size: 14px;
         padding: 14px;
     }
-    
+
     .jumpscare-text {
         font-size: 20vw;
     }
-    
+
     .jumpscare-skull {
         font-size: 30vw;
     }
-    
+
     .system-log {
-        height: 60px;
+        height: 80px;
         font-size: 9px;
+    }
+
+    .status-bar {
+        font-size: 8px;
     }
 }
 
@@ -688,17 +925,16 @@ body.rainbow .terminal {
     .glitch {
         font-size: 14px;
     }
-    
+
     .amount {
         font-size: 28px;
     }
-    
+
     .content {
         padding: 16px 12px;
     }
 }
 
-/* ─── Loading Spinner ─── */
 .spinner {
     display: inline-block;
     width: 14px;
@@ -715,7 +951,6 @@ body.rainbow .terminal {
     to { transform: rotate(360deg); }
 }
 
-/* ─── Ticker ─── */
 .ticker {
     overflow: hidden;
     white-space: nowrap;
@@ -735,19 +970,70 @@ body.rainbow .terminal {
     100% { transform: translateX(-100%); }
 }
 
-/* ─── Hide scrollbar ─── */
 ::-webkit-scrollbar {
     width: 0px;
     background: transparent;
 }
+
+.shake {
+    animation: shakeHard 0.5s;
+}
+
+@keyframes shakeHard {
+    0%, 100% { transform: translateX(0); }
+    10% { transform: translateX(-5px); }
+    20% { transform: translateX(5px); }
+    30% { transform: translateX(-5px); }
+    40% { transform: translateX(5px); }
+    50% { transform: translateX(-3px); }
+    60% { transform: translateX(3px); }
+    70% { transform: translateX(-2px); }
+    80% { transform: translateX(2px); }
+    90% { transform: translateX(-1px); }
+}
+
+.toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #111;
+    border: 1px solid var(--blood-dim);
+    color: var(--blood);
+    padding: 10px 16px;
+    font-size: 10px;
+    letter-spacing: 1px;
+    z-index: 10001;
+    border-radius: 4px;
+    transform: translateX(120%);
+    transition: transform 0.3s;
+    box-shadow: 0 0 20px rgba(255,0,0,0.2);
+}
+
+.toast.show {
+    transform: translateX(0);
+}
+
+.corner-deco {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--blood-dim);
+    opacity: 0.3;
+}
+
+.corner-deco.tl { top: 8px; left: 8px; border-right: none; border-bottom: none; }
+.corner-deco.tr { top: 8px; right: 8px; border-left: none; border-bottom: none; }
+.corner-deco.bl { bottom: 8px; left: 8px; border-right: none; border-top: none; }
+.corner-deco.br { bottom: 8px; right: 8px; border-left: none; border-top: none; }
 </style>
+<base target="_blank">
 </head>
 <body>
 
-<!-- Matrix Rain Background -->
+<div class="vignette"></div>
 <canvas id="matrixCanvas"></canvas>
+<canvas id="particleCanvas"></canvas>
 
-<!-- Blood Drips -->
 <div class="blood-drip" style="left: 5%; height: 80px; animation: drip 5s infinite 0s;"></div>
 <div class="blood-drip" style="left: 15%; height: 120px; animation: drip 7s infinite 1s;"></div>
 <div class="blood-drip" style="left: 25%; height: 60px; animation: drip 4s infinite 2s;"></div>
@@ -758,70 +1044,91 @@ body.rainbow .terminal {
 <div class="blood-drip" style="left: 75%; height: 130px; animation: drip 7.5s infinite 0.8s;"></div>
 <div class="blood-drip" style="left: 85%; height: 85px; animation: drip 5s infinite 1.8s;"></div>
 <div class="blood-drip" style="left: 95%; height: 95px; animation: drip 6s infinite 2.2s;"></div>
+<div class="blood-drip" style="left: 10%; height: 150px; animation: drip 8s infinite 3s;"></div>
+<div class="blood-drip" style="left: 50%; height: 70px; animation: drip 4s infinite 1.2s;"></div>
+<div class="blood-drip" style="left: 90%; height: 110px; animation: drip 6s infinite 2.8s;"></div>
 
-<!-- Jumpscare Overlay -->
 <div id="jumpscare">
     <div class="jumpscare-text">PAY<br>NOW</div>
     <div class="jumpscare-skull">💀</div>
 </div>
 
-<!-- Main Terminal -->
+<div class="toast" id="toast"></div>
+
 <div class="terminal-wrapper">
     <div class="terminal" id="terminal">
-        
-        <!-- Top Bar -->
+        <div class="corner-deco tl"></div>
+        <div class="corner-deco tr"></div>
+        <div class="corner-deco bl"></div>
+        <div class="corner-deco br"></div>
+
         <div class="top-bar">
             <div class="dots">
                 <div class="dot red"></div>
                 <div class="dot yellow"></div>
                 <div class="dot green"></div>
             </div>
-            <div style="color:#333; font-size:10px;">KHMERCRAFT_PAYMENT_V9.2.exe</div>
+            <div style="color:#333; font-size:10px;">KHMERCRAFT_PAYMENT_V9.9.exe</div>
+            <button class="mute-toggle" id="muteBtn" onclick="toggleMute()">🔊 SOUND ON</button>
             <div style="color:#333; font-size:10px;" id="clock">00:00:00</div>
         </div>
-        
-        <!-- Content -->
+
         <div class="content" id="mainContent">
-            
-            <!-- Header -->
             <div class="header">
                 <div class="glitch-wrapper">
                     <h1 class="glitch" data-text="COMPLETE_TRANSACTION">COMPLETE_TRANSACTION</h1>
                 </div>
-                <div class="sub-header">[ AUTHORIZED_BUILDER_ACCESS // ENCRYPTED ]</div>
+                <div class="sub-header">[ AUTHORIZED_BUILDER_ACCESS // ENCRYPTED // v9.9 ]</div>
             </div>
-            
-            <!-- Ticker -->
+
+            <div class="status-bar">
+                <div class="status-item">
+                    <div class="status-dot active" id="connDot"></div>
+                    <span id="connStatus">CONNECTED</span>
+                </div>
+                <div class="status-item">
+                    <span id="ipDisplay">IP: 192.168.X.XXX</span>
+                </div>
+                <div class="status-item">
+                    <div class="status-dot active" id="secDot"></div>
+                    <span id="secStatus">SECURE</span>
+                </div>
+            </div>
+
             <div class="ticker">
                 <div class="ticker-inner">
                     ⚠ WARNING: This is a secure payment terminal. Do not refresh. Do not go back. Steve is watching. ⚠ 
-                    Your transaction is being monitored by 3 security protocols. ⚠ 
+                    Your transaction is being monitored by 7 security protocols. ⚠ 
                     Unauthorized access will result in immediate block placement on your head. ⚠
+                    Firewall active. Encryption level: MAXIMUM. ⚠
                 </div>
             </div>
-            
-            <!-- System Log -->
+
             <div class="system-log" id="systemLog"></div>
-            
-            <!-- Avatar -->
+
+            <div class="firewall-box" id="firewallBox">
+                <div class="firewall-label">
+                    <span>FIREWALL_MATRIX</span>
+                    <span id="firewallStatus">ACTIVE</span>
+                </div>
+                <div class="firewall-grid" id="firewallGrid"></div>
+            </div>
+
             <div class="avatar-box">
                 <div class="steve" id="steveAvatar" title="Don't click me too much...">🧟</div>
-                <div class="steve-label">CORRUPTED_STEVE.EXE</div>
+                <div class="steve-label">CORRUPTED_STEVE.EXE [BUILDER_GRADE]</div>
             </div>
-            
-            <!-- Countdown -->
+
             <div class="countdown">
                 OFFER EXPIRES IN: <span id="countdown">02:59</span>
             </div>
-            
-            <!-- Amount -->
+
             <div class="amount-box">
                 <div class="amount" id="priceDisplay">$25.00</div>
                 <div class="concert-name" id="concertDisplay">Baby MAMA — VannDa</div>
                 <div class="seat-info" id="seatDisplay"></div>
             </div>
-            
-            <!-- Progress -->
+
             <div class="progress-container" id="progressContainer">
                 <div class="progress-label">
                     <span>ENCRYPTING_TRANSACTION</span>
@@ -831,19 +1138,16 @@ body.rainbow .terminal {
                     <div class="progress-fill" id="progressFill"></div>
                 </div>
             </div>
-            
-            <!-- Pay Button -->
+
             <button class="btn btn-glitch" id="payBtn" onclick="startPayment()">
                 [ EXECUTE_PAYMENT ]
             </button>
-            
+
             <div class="warning">
                 ⚠ WARNING: This action cannot be undone. Your soul will be charged 2.5% processing fee.
             </div>
-            
         </div>
-        
-        <!-- Success Screen -->
+
         <div id="successScreen">
             <div class="success-icon">💀</div>
             <div class="success-title">TRANSACTION_COMPLETE</div>
@@ -851,35 +1155,51 @@ body.rainbow .terminal {
             <div class="success-text" style="color:var(--success); margin-top:8px;">You may now close this terminal.</div>
             <div class="hash" id="txHash"></div>
         </div>
-        
     </div>
 </div>
 
 <script>
-/* ════════════════════════════════════════
-   KHMERCRAFT AUDIO & LOGIC ENGINE
-   ════════════════════════════════════════ */
 
 const AudioContext = window.AudioContext || window.webkitAudioContext;
 let audioCtx = null;
 let masterGain = null;
+let isMuted = false;
 
 function initAudio() {
     if (audioCtx) return;
     audioCtx = new AudioContext();
     masterGain = audioCtx.createGain();
-    masterGain.gain.value = 0.4;
+    masterGain.gain.value = 0.5;
     masterGain.connect(audioCtx.destination);
 }
 
-function playTone(freq, type, duration, vol = 0.3, when = 0) {
+function toggleMute() {
+    isMuted = !isMuted;
+    const btn = document.getElementById('muteBtn');
+    if (isMuted) {
+        btn.textContent = '🔇 MUTED';
+        btn.style.borderColor = '#ff0000';
+        btn.style.color = '#ff0000';
+        if (masterGain) masterGain.gain.value = 0;
+        showToast('AUDIO MUTED FOR PRESENTATION');
+    } else {
+        btn.textContent = '🔊 SOUND ON';
+        btn.style.borderColor = '#333';
+        btn.style.color = '#555';
+        if (masterGain) masterGain.gain.value = 0.5;
+        showToast('AUDIO ENABLED');
+    }
+}
+
+function playTone(freq, type, duration, vol, when) {
+    if (isMuted) return;
     if (!audioCtx) initAudio();
-    const t = audioCtx.currentTime + when;
+    const t = audioCtx.currentTime + (when || 0);
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
     osc.type = type;
     osc.frequency.setValueAtTime(freq, t);
-    gain.gain.setValueAtTime(vol, t);
+    gain.gain.setValueAtTime(vol || 0.3, t);
     gain.gain.exponentialRampToValueAtTime(0.001, t + duration);
     osc.connect(gain);
     gain.connect(masterGain);
@@ -887,7 +1207,8 @@ function playTone(freq, type, duration, vol = 0.3, when = 0) {
     osc.stop(t + duration);
 }
 
-function playNoise(duration, vol = 0.3) {
+function playNoise(duration, vol) {
+    if (isMuted) return;
     if (!audioCtx) initAudio();
     const bufferSize = audioCtx.sampleRate * duration;
     const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
@@ -898,14 +1219,11 @@ function playNoise(duration, vol = 0.3) {
     const noise = audioCtx.createBufferSource();
     noise.buffer = buffer;
     const gain = audioCtx.createGain();
-    gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+    gain.gain.setValueAtTime(vol || 0.3, audioCtx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
-    
-    // Filter for scary low sound
     const filter = audioCtx.createBiquadFilter();
     filter.type = 'lowpass';
     filter.frequency.value = 800;
-    
     noise.connect(filter);
     filter.connect(gain);
     gain.connect(masterGain);
@@ -913,50 +1231,133 @@ function playNoise(duration, vol = 0.3) {
     noise.stop(audioCtx.currentTime + duration);
 }
 
+function playDistortion(duration, vol) {
+    if (isMuted) return;
+    if (!audioCtx) initAudio();
+    const bufferSize = audioCtx.sampleRate * duration;
+    const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+        data[i] = (Math.random() * 2 - 1) * 0.8;
+    }
+    const noise = audioCtx.createBufferSource();
+    noise.buffer = buffer;
+    const waveshaper = audioCtx.createWaveShaper();
+    waveshaper.curve = makeDistortionCurve(400);
+    const gain = audioCtx.createGain();
+    gain.gain.setValueAtTime(vol || 0.5, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+    noise.connect(waveshaper);
+    waveshaper.connect(gain);
+    gain.connect(masterGain);
+    noise.start();
+    noise.stop(audioCtx.currentTime + duration);
+}
+
+function makeDistortionCurve(amount) {
+    const k = typeof amount === 'number' ? amount : 50;
+    const n_samples = 44100;
+    const curve = new Float32Array(n_samples);
+    const deg = Math.PI / 180;
+    for (let i = 0; i < n_samples; ++i) {
+        const x = i * 2 / n_samples - 1;
+        curve[i] = (3 + k) * x * 20 * deg / (Math.PI + k * Math.abs(x));
+    }
+    return curve;
+}
+
+/* ─── LOUD Jumpscare Sound ─── */
 function playJumpscareSound() {
+    if (isMuted) return;
     if (!audioCtx) initAudio();
     const now = audioCtx.currentTime;
-    
-    // Dissonant cluster
-    playTone(100, 'sawtooth', 0.5, 0.8, 0);
-    playTone(150, 'square', 0.5, 0.6, 0);
-    playTone(80, 'sawtooth', 0.7, 0.9, 0);
-    playTone(200, 'sawtooth', 0.4, 0.5, 0.1);
-    
-    // Noise burst
-    playNoise(0.6, 0.7);
-    
-    // Feedback screech
+
+    // Temporarily boost master gain for MAXIMUM LOUDNESS
+    const originalGain = masterGain.gain.value;
+    masterGain.gain.setValueAtTime(1.0, now);
+    masterGain.gain.setValueAtTime(1.0, now + 1.5);
+    masterGain.gain.linearRampToValueAtTime(originalGain, now + 2.0);
+
+    // Layer 1: Deep bass rumble
+    const bassOsc = audioCtx.createOscillator();
+    const bassGain = audioCtx.createGain();
+    bassOsc.type = 'sawtooth';
+    bassOsc.frequency.setValueAtTime(40, now);
+    bassOsc.frequency.exponentialRampToValueAtTime(15, now + 1.5);
+    bassGain.gain.setValueAtTime(1.2, now);
+    bassGain.gain.exponentialRampToValueAtTime(0.001, now + 1.5);
+    bassOsc.connect(bassGain);
+    bassGain.connect(masterGain);
+    bassOsc.start(now);
+    bassOsc.stop(now + 1.5);
+
+    // Layer 2: Dissonant cluster (LOUD)
+    playTone(80, 'sawtooth', 1.2, 1.0, 0);
+    playTone(100, 'square', 1.0, 0.9, 0);
+    playTone(150, 'sawtooth', 1.0, 0.9, 0);
+    playTone(200, 'square', 0.8, 0.8, 0.1);
+    playTone(300, 'sawtooth', 0.6, 0.7, 0.2);
+    playTone(50, 'square', 1.5, 1.0, 0);
+
+    // Layer 3: Noise burst (LOUD)
+    playNoise(1.0, 1.0);
+    playDistortion(0.8, 0.8);
+
+    // Layer 4: Feedback screech
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
     osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(900, now);
-    osc.frequency.exponentialRampToValueAtTime(50, now + 0.6);
-    gain.gain.setValueAtTime(0.6, now);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+    osc.frequency.setValueAtTime(1200, now);
+    osc.frequency.exponentialRampToValueAtTime(30, now + 1.0);
+    gain.gain.setValueAtTime(1.0, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 1.0);
     osc.connect(gain);
     gain.connect(masterGain);
     osc.start(now);
-    osc.stop(now + 0.6);
+    osc.stop(now + 1.0);
+
+    // Layer 5: High pitch scream
+    const scream = audioCtx.createOscillator();
+    const screamGain = audioCtx.createGain();
+    scream.type = 'sawtooth';
+    scream.frequency.setValueAtTime(2000, now);
+    scream.frequency.exponentialRampToValueAtTime(100, now + 0.8);
+    screamGain.gain.setValueAtTime(0.8, now);
+    screamGain.gain.exponentialRampToValueAtTime(0.001, now + 0.8);
+    scream.connect(screamGain);
+    screamGain.connect(masterGain);
+    scream.start(now);
+    scream.stop(now + 0.8);
+
+    // Layer 6: Stutter effect
+    for (let i = 0; i < 8; i++) {
+        playTone(800 + i * 100, 'square', 0.05, 0.6, i * 0.08);
+    }
 }
 
 function playSuccessSound() {
+    if (isMuted) return;
     if (!audioCtx) initAudio();
     const now = audioCtx.currentTime;
-    [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
-        playTone(freq, 'sine', 0.3, 0.15, i * 0.12);
+    [523.25, 659.25, 783.99, 1046.50].forEach(function(freq, i) {
+        playTone(freq, 'sine', 0.4, 0.2, i * 0.12);
+    });
+    [659.25, 783.99, 1046.50, 1318.51].forEach(function(freq, i) {
+        playTone(freq, 'triangle', 0.3, 0.1, i * 0.12 + 0.06);
     });
 }
 
 function playHoverSound() {
-    playTone(800, 'sine', 0.05, 0.03);
+    playTone(800, 'sine', 0.05, 0.05);
 }
 
 function playClickSound() {
-    playTone(1200, 'square', 0.08, 0.05);
+    playTone(1200, 'square', 0.08, 0.08);
+    playTone(1800, 'sine', 0.05, 0.04, 0.02);
 }
 
 function playBabyShark() {
+    if (isMuted) return;
     if (!audioCtx) initAudio();
     const notes = [
         [293.66, 0.25], [293.66, 0.25], [329.63, 0.25], [329.63, 0.25],
@@ -967,9 +1368,38 @@ function playBabyShark() {
         [349.23, 0.25], [329.63, 0.25], [293.66, 0.25], [261.63, 0.25],
         [293.66, 0.5]
     ];
-    notes.forEach(([freq, dur], i) => {
-        playTone(freq, 'triangle', dur, 0.12, i * 0.28);
+    notes.forEach(function(note, i) {
+        playTone(note[0], 'triangle', note[1], 0.15, i * 0.28);
     });
+}
+
+function playTypingSound() {
+    playTone(2000 + Math.random() * 500, 'sine', 0.02, 0.02);
+}
+
+function playErrorSound() {
+    playTone(150, 'sawtooth', 0.3, 0.3);
+    playTone(100, 'square', 0.3, 0.3, 0.1);
+}
+
+function playAmbientHum() {
+    if (isMuted) return;
+    if (!audioCtx) initAudio();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = 50;
+    gain.gain.value = 0.02;
+    osc.connect(gain);
+    gain.connect(masterGain);
+    osc.start();
+    window.ambientOsc = osc;
+}
+
+function playBeepSequence() {
+    for (let i = 0; i < 3; i++) {
+        playTone(880, 'sine', 0.1, 0.05, i * 0.15);
+    }
 }
 
 /* ─── Matrix Rain ─── */
@@ -983,7 +1413,7 @@ function resizeCanvas() {
 resizeCanvas();
 window.addEventListener('resize', resizeCanvas);
 
-const chars = '01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
+const matrixChars = '01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
 const fontSize = 14;
 let columns = Math.floor(canvas.width / fontSize);
 let drops = new Array(columns).fill(1);
@@ -993,9 +1423,9 @@ function drawMatrix() {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = '#1a0000';
     ctx.font = fontSize + 'px monospace';
-    
+
     for (let i = 0; i < drops.length; i++) {
-        const text = chars[Math.floor(Math.random() * chars.length)];
+        const text = matrixChars[Math.floor(Math.random() * matrixChars.length)];
         ctx.fillText(text, i * fontSize, drops[i] * fontSize);
         if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
             drops[i] = 0;
@@ -1005,11 +1435,87 @@ function drawMatrix() {
 }
 setInterval(drawMatrix, 50);
 
-window.addEventListener('resize', () => {
+window.addEventListener('resize', function() {
     resizeCanvas();
     columns = Math.floor(canvas.width / fontSize);
     drops = new Array(columns).fill(1);
 });
+
+/* ─── Particle System ─── */
+const pCanvas = document.getElementById('particleCanvas');
+const pCtx = pCanvas.getContext('2d');
+let particles = [];
+
+function resizePCanvas() {
+    pCanvas.width = window.innerWidth;
+    pCanvas.height = window.innerHeight;
+}
+resizePCanvas();
+window.addEventListener('resize', resizePCanvas);
+
+class Particle {
+    constructor() {
+        this.x = Math.random() * pCanvas.width;
+        this.y = Math.random() * pCanvas.height;
+        this.size = Math.random() * 2;
+        this.speedX = (Math.random() - 0.5) * 0.5;
+        this.speedY = (Math.random() - 0.5) * 0.5;
+        this.life = Math.random() * 100;
+    }
+    update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        this.life--;
+        if (this.life <= 0 || this.x < 0 || this.x > pCanvas.width || this.y < 0 || this.y > pCanvas.height) {
+            this.x = Math.random() * pCanvas.width;
+            this.y = Math.random() * pCanvas.height;
+            this.life = Math.random() * 100;
+        }
+    }
+    draw() {
+        pCtx.fillStyle = 'rgba(255, 0, 0, ' + (this.life / 200) + ')';
+        pCtx.fillRect(this.x, this.y, this.size, this.size);
+    }
+}
+
+for (let i = 0; i < 50; i++) {
+    particles.push(new Particle());
+}
+
+function animateParticles() {
+    pCtx.clearRect(0, 0, pCanvas.width, pCanvas.height);
+    particles.forEach(function(p) {
+        p.update();
+        p.draw();
+    });
+    requestAnimationFrame(animateParticles);
+}
+animateParticles();
+
+/* ─── Blood Splatter Effect ─── */
+function spawnBloodSplatter(x, y) {
+    for (let i = 0; i < 12; i++) {
+        const p = document.createElement('div');
+        p.className = 'blood-particle';
+        p.style.left = x + 'px';
+        p.style.top = y + 'px';
+        const angle = Math.random() * Math.PI * 2;
+        const dist = Math.random() * 60 + 20;
+        p.style.setProperty('--tx', Math.cos(angle) * dist + 'px');
+        p.style.setProperty('--ty', Math.sin(angle) * dist + 'px');
+        p.style.animation = 'bloodSplatter ' + (Math.random() * 0.5 + 0.3) + 's ease-out forwards';
+        document.body.appendChild(p);
+        setTimeout(function() { p.remove(); }, 800);
+    }
+}
+
+/* ─── Toast Notification ─── */
+function showToast(msg) {
+    const toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(function() { toast.classList.remove('show'); }, 2000);
+}
 
 /* ─── System Log ─── */
 const logMessages = [
@@ -1024,28 +1530,55 @@ const logMessages = [
     '>> Mining transaction block...',
     '>> 3 confirmations received',
     '>> Payment gateway: ONLINE',
-    '>> Ready for execution.'
+    '>> Ready for execution.',
+    '>> Firewall: 7 layers active',
+    '>> Biometric scan: FAILED (Steve has no eyes)',
+    '>> Rerouting through dark web node...',
+    '>> Encryption strength: 4096-bit',
+    '>> WARNING: Unauthorized eyeball detected',
+    '>> Deploying countermeasures...',
+    '>> Steve is getting impatient...',
+    '>> Transaction pool: VALIDATED'
 ];
 
-function addLog(text) {
+function addLog(text, type) {
+    type = type || 'normal';
     const log = document.getElementById('systemLog');
     const line = document.createElement('div');
-    line.className = 'log-line';
+    line.className = 'log-line ' + type;
     line.textContent = text;
     log.appendChild(line);
-    if (log.children.length > 4) log.removeChild(log.children[0]);
+    if (log.children.length > 6) log.removeChild(log.children[0]);
+    playTypingSound();
 }
 
 let logIndex = 0;
 function startLogs() {
-    const interval = setInterval(() => {
+    const interval = setInterval(function() {
         if (logIndex < logMessages.length) {
-            addLog(logMessages[logIndex]);
+            let type = 'normal';
+            if (logMessages[logIndex].indexOf('WARNING') !== -1) type = 'warning';
+            if (logMessages[logIndex].indexOf('FAILED') !== -1) type = 'error';
+            if (logMessages[logIndex].indexOf('VALIDATED') !== -1) type = 'success';
+            addLog(logMessages[logIndex], type);
             logIndex++;
         } else {
             clearInterval(interval);
+            setInterval(function() {
+                const randomLogs = [
+                    '>> Heartbeat: OK',
+                    '>> Monitoring connection...',
+                    '>> Packet loss: 0%',
+                    '>> Steve is watching...',
+                    '>> Memory usage: 66.6%',
+                    '>> Temperature: HOT',
+                    '>> Ping: 13ms',
+                    '>> Encryption rotating...'
+                ];
+                addLog(randomLogs[Math.floor(Math.random() * randomLogs.length)]);
+            }, 3000);
         }
-    }, 400);
+    }, 350);
 }
 
 /* ─── Clock ─── */
@@ -1057,21 +1590,33 @@ function updateClock() {
 setInterval(updateClock, 1000);
 updateClock();
 
+/* ─── Fake IP Rotation ─── */
+function rotateIP() {
+    const ips = ['192.168.13.37', '10.0.0.666', '172.16.0.1', '127.0.0.13', '203.144.12.7'];
+    const ip = ips[Math.floor(Math.random() * ips.length)];
+    document.getElementById('ipDisplay').textContent = 'IP: ' + ip;
+}
+setInterval(rotateIP, 8000);
+
 /* ─── Countdown ─── */
 let countdownSec = 179;
 function updateCountdown() {
     const m = Math.floor(countdownSec / 60).toString().padStart(2, '0');
     const s = (countdownSec % 60).toString().padStart(2, '0');
-    document.getElementById('countdown').textContent = `${m}:${s}`;
+    document.getElementById('countdown').textContent = m + ':' + s;
     if (countdownSec > 0) countdownSec--;
+    if (countdownSec === 30) {
+        addLog('>> WARNING: Offer expiring soon!', 'warning');
+        playErrorSound();
+    }
 }
 setInterval(updateCountdown, 1000);
 
 /* ─── URL Params ─── */
-const params = new URLSearchParams(location.search);
-const amount = params.get('amount') || '25.00';
-const concert = params.get('concert') || 'Concert Ticket';
-const seats = params.get('seats') || '';
+const urlParams = new URLSearchParams(location.search);
+const amount = urlParams.get('amount') || '25.00';
+const concert = urlParams.get('concert') || 'Concert Ticket';
+const seats = urlParams.get('seats') || '';
 
 document.getElementById('priceDisplay').textContent = '$' + amount;
 document.getElementById('concertDisplay').textContent = concert;
@@ -1079,10 +1624,38 @@ if (seats) {
     document.getElementById('seatDisplay').textContent = 'Seats: ' + seats;
 }
 
+/* ─── Firewall Visual ─── */
+function initFirewall() {
+    const grid = document.getElementById('firewallGrid');
+    for (let i = 0; i < 32; i++) {
+        const cell = document.createElement('div');
+        cell.className = 'firewall-cell';
+        grid.appendChild(cell);
+    }
+}
+initFirewall();
+
+function animateFirewall() {
+    const cells = document.querySelectorAll('.firewall-cell');
+    cells.forEach(function(cell) {
+        const r = Math.random();
+        if (r > 0.7) {
+            cell.classList.add('active');
+            cell.classList.remove('blocked');
+        } else if (r > 0.95) {
+            cell.classList.add('blocked');
+            cell.classList.remove('active');
+        } else {
+            cell.classList.remove('active', 'blocked');
+        }
+    });
+}
+setInterval(animateFirewall, 200);
+
 /* ─── Confetti ─── */
 function spawnConfetti() {
     const colors = ['#ff0000', '#ff6600', '#ffff00', '#00ff41', '#00ffff', '#ff00ff'];
-    for (let i = 0; i < 60; i++) {
+    for (let i = 0; i < 80; i++) {
         const c = document.createElement('div');
         c.className = 'confetti';
         c.style.left = Math.random() * 100 + 'vw';
@@ -1090,9 +1663,9 @@ function spawnConfetti() {
         c.style.width = (Math.random() * 8 + 4) + 'px';
         c.style.height = (Math.random() * 8 + 4) + 'px';
         c.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
-        c.style.animation = `confettiFall ${Math.random() * 2 + 2}s linear forwards`;
+        c.style.animation = 'confettiFall ' + (Math.random() * 2 + 2) + 's linear forwards';
         document.body.appendChild(c);
-        setTimeout(() => c.remove(), 4000);
+        setTimeout(function() { c.remove(); }, 4000);
     }
 }
 
@@ -1102,32 +1675,38 @@ let paying = false;
 function startPayment() {
     if (paying) return;
     paying = true;
-    
+
     const btn = document.getElementById('payBtn');
     btn.disabled = true;
     btn.innerHTML = 'ENCRYPTING <span class="spinner"></span>';
-    
+
     const progressContainer = document.getElementById('progressContainer');
     const progressFill = document.getElementById('progressFill');
     const progressPercent = document.getElementById('progressPercent');
+    const firewallBox = document.getElementById('firewallBox');
+
     progressContainer.style.display = 'block';
-    
-    // Play encrypting sounds
-    for (let i = 0; i < 5; i++) {
-        setTimeout(() => playTone(400 + i * 100, 'square', 0.1, 0.05), i * 200);
+    firewallBox.style.display = 'block';
+
+    addLog('>> Activating firewall matrix...', 'success');
+
+    for (let i = 0; i < 8; i++) {
+        setTimeout(function() {
+            playTone(400 + i * 100, 'square', 0.1, 0.08);
+        }, i * 200);
     }
-    
+
     let progress = 0;
-    const interval = setInterval(() => {
+    const interval = setInterval(function() {
         progress += Math.random() * 15 + 5;
         if (progress > 100) progress = 100;
         progressFill.style.width = progress + '%';
         progressPercent.textContent = Math.floor(progress) + '%';
-        
+
         if (Math.random() > 0.7) {
             addLog('>> Processing... ' + Math.floor(progress) + '%');
         }
-        
+
         if (progress >= 100) {
             clearInterval(interval);
             setTimeout(doJumpscare, 300);
@@ -1139,30 +1718,36 @@ function doJumpscare() {
     const js = document.getElementById('jumpscare');
     js.style.display = 'flex';
     playJumpscareSound();
-    
-    // Vibrate on mobile
-    if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 400]);
-    
-    setTimeout(() => {
+
+    if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 400, 100, 600]);
+
+    // Screen shake effect
+    document.body.classList.add('shake');
+    setTimeout(function() { document.body.classList.remove('shake'); }, 500);
+
+    // Blood splatter from center
+    spawnBloodSplatter(window.innerWidth / 2, window.innerHeight / 2);
+
+    setTimeout(function() {
         js.style.display = 'none';
         showSuccess();
-    }, 1400);
+    }, 1800);
 }
 
 function showSuccess() {
     document.getElementById('mainContent').style.display = 'none';
     document.getElementById('successScreen').style.display = 'block';
-    
+
     playSuccessSound();
     spawnConfetti();
-    
-    // Generate fake hash
-    const hash = '0x' + Array(64).fill(0).map(() => 
-        '0123456789abcdef'[Math.floor(Math.random() * 16)]
-    ).join('');
+
+    const hash = '0x' + Array(64).fill(0).map(function() {
+        return '0123456789abcdef'[Math.floor(Math.random() * 16)];
+    }).join('');
     document.getElementById('txHash').textContent = 'TX: ' + hash;
-    
+
     document.title = '✓ PAYMENT_HARVESTED';
+    showToast('TRANSACTION COMPLETE');
 }
 
 /* ─── Hover Sounds ─── */
@@ -1171,16 +1756,17 @@ document.getElementById('payBtn').addEventListener('mousedown', playClickSound);
 
 /* ─── Steve Easter Egg ─── */
 let steveClicks = 0;
-document.getElementById('steveAvatar').addEventListener('click', () => {
+document.getElementById('steveAvatar').addEventListener('click', function(e) {
     steveClicks++;
     playTone(600 + steveClicks * 50, 'sine', 0.1, 0.05);
-    
+    spawnBloodSplatter(e.clientX, e.clientY);
+
     if (steveClicks >= 5) {
         steveClicks = 0;
         playBabyShark();
-        addLog('>> EASTER_EGG: Baby Shark protocol activated');
+        addLog('>> EASTER_EGG: Baby Shark protocol activated', 'success');
         document.getElementById('steveAvatar').textContent = '🦈';
-        setTimeout(() => {
+        setTimeout(function() {
             document.getElementById('steveAvatar').textContent = '🧟';
         }, 3000);
     }
@@ -1189,40 +1775,53 @@ document.getElementById('steveAvatar').addEventListener('click', () => {
 /* ─── Konami Code ─── */
 let konami = [];
 const konamiCode = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
-document.addEventListener('keydown', (e) => {
+document.addEventListener('keydown', function(e) {
     konami.push(e.key);
     konami = konami.slice(-10);
     if (konami.join(',') === konamiCode.join(',')) {
         document.body.classList.toggle('rainbow');
         playTone(880, 'sine', 0.5, 0.2);
-        addLog('>> RAINBOW_MODE: Activated by Konami Code');
+        addLog('>> RAINBOW_MODE: Activated by Konami Code', 'success');
+        showToast('RAINBOW MODE TOGGLED');
     }
 });
 
 /* ─── Touch feedback for mobile ─── */
-document.addEventListener('touchstart', () => {}, {passive: true});
+document.addEventListener('touchstart', function() {}, {passive: true});
 
 /* ─── Init ─── */
-window.addEventListener('load', () => {
+window.addEventListener('load', function() {
     startLogs();
-    
-    // Random glitch on title every few seconds
-    setInterval(() => {
+    playAmbientHum();
+
+    setInterval(function() {
         const glitch = document.querySelector('.glitch');
-        glitch.style.textShadow = `${Math.random()*4-2}px ${Math.random()*4-2}px 0px rgba(255,0,0,0.5)`;
-        setTimeout(() => {
+        glitch.style.textShadow = (Math.random()*4-2) + 'px ' + (Math.random()*4-2) + 'px 0px rgba(255,0,0,0.5)';
+        setTimeout(function() {
             glitch.style.textShadow = '2px 2px 0px rgba(255,0,0,0.3)';
         }, 100);
+    }, 5000);
+
+    // Random system beep
+    setInterval(function() {
+        if (Math.random() > 0.7) {
+            playTone(2000, 'sine', 0.03, 0.02);
+        }
     }, 5000);
 });
 
 /* ─── Prevent back button ─── */
 history.pushState(null, null, location.href);
-window.addEventListener('popstate', () => {
+window.addEventListener('popstate', function() {
     history.pushState(null, null, location.href);
-    addLog('>> WARNING: Back navigation blocked by Steve');
-    playTone(200, 'sawtooth', 0.3, 0.1);
+    addLog('>> WARNING: Back navigation blocked by Steve', 'warning');
+    playErrorSound();
 });
+
+/* ─── Click anywhere to init audio (browser policy) ─── */
+document.addEventListener('click', function() {
+    if (!audioCtx) initAudio();
+}, { once: true });
 </script>
 </body>
 </html>
