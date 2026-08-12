@@ -34,8 +34,10 @@
 
 html, body {
     width: 100%;
-    height: 100%;
-    overflow: hidden;
+    min-height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     background: #050505;
     font-family: 'Courier New', Courier, monospace;
     color: var(--text-main);
@@ -156,9 +158,11 @@ body::after {
     z-index: 10;
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
     min-height: 100vh;
     padding: 20px;
+    padding-top: 40px;
+    padding-bottom: 40px;
 }
 
 .terminal {
@@ -870,8 +874,8 @@ body.rainbow .terminal {
 @media (max-width: 600px) {
     .terminal-wrapper {
         padding: 10px;
-        align-items: flex-start;
         padding-top: 20px;
+        padding-bottom: 20px;
     }
 
     .terminal {
@@ -1025,6 +1029,93 @@ body.rainbow .terminal {
 .corner-deco.tr { top: 8px; right: 8px; border-left: none; border-bottom: none; }
 .corner-deco.bl { bottom: 8px; left: 8px; border-right: none; border-top: none; }
 .corner-deco.br { bottom: 8px; right: 8px; border-left: none; border-top: none; }
+
+/* ─── Compact Mode for Short Screens ─── */
+@media (max-height: 700px) {
+    .terminal-wrapper {
+        padding-top: 10px;
+        padding-bottom: 10px;
+    }
+    .content {
+        padding: 16px 14px;
+    }
+    .system-log {
+        height: 60px;
+        margin-bottom: 12px;
+    }
+    .avatar-box {
+        padding: 12px;
+        margin-bottom: 12px;
+    }
+    .amount-box {
+        padding: 16px;
+        margin-bottom: 12px;
+    }
+    .countdown {
+        margin-bottom: 10px;
+    }
+    .amount {
+        font-size: 32px;
+    }
+    .steve {
+        font-size: 44px;
+    }
+    .glitch {
+        font-size: 18px;
+        letter-spacing: 2px;
+    }
+    .btn {
+        padding: 12px;
+        font-size: 14px;
+    }
+    .header {
+        margin-bottom: 14px;
+    }
+    .firewall-box {
+        margin-bottom: 10px;
+        padding: 6px;
+    }
+    .status-bar {
+        margin-bottom: 8px;
+        padding-bottom: 6px;
+    }
+    .ticker {
+        margin-bottom: 10px;
+    }
+}
+
+@media (max-height: 500px) {
+    .content {
+        padding: 10px 12px;
+    }
+    .system-log {
+        height: 50px;
+    }
+    .avatar-box {
+        padding: 8px;
+        margin-bottom: 8px;
+    }
+    .amount-box {
+        padding: 12px;
+        margin-bottom: 8px;
+    }
+    .amount {
+        font-size: 26px;
+    }
+    .steve {
+        font-size: 36px;
+    }
+    .glitch {
+        font-size: 14px;
+    }
+    .btn {
+        padding: 10px;
+        font-size: 12px;
+    }
+    .warning {
+        font-size: 9px;
+    }
+}
 </style>
 <base target="_blank">
 </head>
